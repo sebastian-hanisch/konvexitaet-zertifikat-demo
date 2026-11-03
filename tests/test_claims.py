@@ -103,8 +103,10 @@ def test_steps_scale_like_one_over_eps_independent_of_size(rate_rows):
 
 
 def test_ten_times_more_accuracy_costs_about_ten_times_more_steps(rate_rows):
+    """README: Verhältnis 9 bis 12 von ε = 0,01 auf 0,001 und 7 bis 11 von 0,1 auf 0,01."""
     for row in rate_rows:
-        assert 8 <= row["steps"][0.001] / row["steps"][0.01] <= 13, (row["n"], row["d"])
+        assert 8.5 <= row["steps"][0.001] / row["steps"][0.01] <= 12.5, (row["n"], row["d"])
+        assert 6.5 <= row["steps"][0.01] / row["steps"][0.1] <= 11.5, (row["n"], row["d"])
 
 
 # ----------------------------------------------------------------------------- lokal gegen global

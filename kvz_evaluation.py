@@ -192,8 +192,9 @@ def verdict_certificate(upper: float, lower: float, exact_r: float, steps: int) 
     """Kernfrage: Wie gut ist die Lösung, ohne sie zu kennen? Die Lücke begrenzt den Fehler; der wahre Fehler steht zum Vergleich daneben."""
     gap = 0.0 if upper <= 0 else (upper - lower) / upper
     true_err = 0.0 if exact_r <= 0 else (upper - exact_r) / exact_r
-    base = (f"Nach {steps} Schritten liegt der kleinste Radius **zwischen {de(lower, 3)} und {de(upper, 3)}**. Die Lücke von {pct(gap)} ist bewiesen: "
-            f"Mehr kann die obere Schranke nicht danebenliegen. Der wahre Radius ist {de(exact_r, 3)}, der Fehler also {pct(true_err)}.")
+    base = (f"Nach {steps} Schritten liegt der kleinste Radius **zwischen {de(lower, 3)} und {de(upper, 3)}**. Die Lücke von {pct(gap)} (Anteil der oberen Schranke) ist bewiesen: "
+            f"Absolut liegt die obere Schranke höchstens so weit daneben, wie obere und untere Schranke auseinanderliegen. "
+            f"Der wahre Radius ist {de(exact_r, 3)}, der Fehler also {pct(true_err)} (Anteil des wahren Radius, eine andere Bezugsgröße als bei der Lücke).")
     if gap <= 0.01:
         return "success", base
     if gap <= 0.10:
@@ -218,7 +219,7 @@ def verdict_rate(rows: list[dict]) -> tuple[str, str]:
     small = min(rows, key=lambda r: r["n"] * r["d"])
     return "info", (f"Bis zur relativen Lücke {pct(smallest)} brauchen alle Wolken **{count_text(min(r['steps'][smallest] for r in rows))} bis {count_text(max(r['steps'][smallest] for r in rows))} Schritte**, "
                     f"das ist {de(lo, 2)} bis {de(hi, 2)} mal 1/ε, obwohl n·d von {small['n'] * small['d']} bis {big['n'] * big['d']} reicht. "
-                    "Zehnmal mehr Genauigkeit kostet zehnmal mehr Schritte: Die Rate hängt von der Lücke ab, nicht von der Größe.")
+                    "Bei diesen Normalwolken kostet zehnmal mehr Genauigkeit etwa zehnmal mehr Schritte: Die Rate hängt von der Lücke ab, nicht von der Größe.")
 
 
 def verdict_local(res: dict, m: int) -> tuple[str, str]:

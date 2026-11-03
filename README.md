@@ -7,7 +7,7 @@ Wurzel der **Konzepte-Reihe „Konvexe und konische Optimierung“** (Stück 1 v
 
 ## Kernfrage
 
-**Was gibt Konvexität außer „jedes lokale Minimum ist global“?** Einen **Beweis zum Mitnehmen**. Zu jedem Zwischenergebnis gibt es eine zweite, duale Zahl, und die **Lücke** zwischen beiden begrenzt den Fehler, ohne dass man die Lösung kennt. Ohne Konvexität gibt es Verfahren, aber keinen billigen Beweis.
+**Was gibt Konvexität außer „jedes lokale Minimum ist global“?** Einen **Beweis zum Mitnehmen**. Zu jedem Zwischenergebnis gibt es eine zweite, duale Zahl, und die **Lücke** zwischen beiden begrenzt den Fehler, ohne dass man die Lösung kennt. Ohne Konvexität gibt es Verfahren, aber keinen im Allgemeinen billigen Beweis (in der Ebene gibt es einen, in höheren Dimensionen wächst er mit n^(d+1)).
 
 Das Beispiel ist die **kleinste umschließende Kugel** einer Punktwolke in der Ebene. Ihr nichtkonvexes Gegenstück ist die **getrimmte Kugel**: die kleinste Kugel, die mindestens m der n Punkte enthält (Ausreißer dürfen draußen bleiben).
 
@@ -16,7 +16,7 @@ Das Beispiel ist die **kleinste umschließende Kugel** einer Punktwolke in der E
 - **Primal:** `min R` mit `‖xᵢ − c‖ ≤ R` für alle Punkte. Jeder Mittelpunkt c gibt eine **obere Schranke** (Abstand zum fernsten Punkt).
 - **Dual:** `max_λ Σ λᵢ‖xᵢ‖² − ‖Σ λᵢxᵢ‖²` über Gewichte im Simplex (= R*²). Jedes Gewicht gibt eine **untere Schranke**: die Streuung der Punkte um ihren Gewichtsschwerpunkt (schwache Dualität, Beweis im 📐-Expander der App).
 - **Verfahren:** Frank-Wolfe auf dem Dual (`kvz_algorithm.dual_run`): Der fernste Punkt bekommt mehr Gewicht, der Mittelpunkt rückt auf ihn zu, die Schrittweite folgt aus exakter Linienminimierung.
-- **Orakel in der App:** der exakte Radius nach Welzl; ein unabhängiger Prüfer (`check_certificate`) läuft bei jedem Lauf und meldet eine verletzte Regel als Fehler.
+- **Orakel in der App:** der exakte Radius nach Welzl; ein Prüfer (`check_certificate`, rechnet die Schranken aus Gewichten und Mittelpunkt neu) läuft bei jedem Lauf und meldet eine verletzte Regel als Fehler.
 
 ## Methodik
 
@@ -29,12 +29,12 @@ Alle Zahlen stehen in `tests/test_claims.py`; Experimente laufen über die fünf
 | Frage | Befund |
 |---|---|
 | Handinstanz (0,0), (4,0), (0,3), (1,1) | Kugel um (2; 1,5), Radius 2,5; dual mit Gewichten (0; ½; ½; 0): 6,25 = 2,5². Getrimmt (0,0), (1,0), (0,1), (10,0) mit m = 3: Optimum 0,7071, das Wechselverfahren aus (10, 0) bleibt bei 5 hängen |
-| Standardwolke (20 Punkte, 200 Schritte) | untere Schranke 2,334, obere 2,346, wahr 2,340: bewiesene Lücke 0,51 %, wahrer Fehler 0,27 % |
-| Schwache Dualität | In 1500 Zufallspaaren (Mittelpunkt, Gewichte) in 2, 10 und 50 Dimensionen keine Verletzung der Reihenfolge untere Schranke ≤ wahrer Radius ≤ obere Schranke |
+| Standardwolke (20 Punkte, 200 Schritte) | untere Schranke 2,334, obere 2,346, wahr 2,340: bewiesene Lücke 0,51 % (Anteil der oberen Schranke), wahrer Fehler 0,27 % (Anteil des wahren Radius) |
+| Schwache Dualität | In 1500 Zufallspaaren (Mittelpunkt, Gewichte) in 2, 10 und 50 Dimensionen keine Verletzung der Reihenfolge untere Schranke ≤ wahrer Radius ≤ obere Schranke (in 10 und 50 Dimensionen gegen eine Referenz aus einem langen Lauf statt des exakten Radius) |
 | Wahrer Fehler gegen Lücke | Der Fehler der oberen Schranke ist im Median über den Verlauf **etwa die Hälfte der Lücke**: 0,500 bis 0,503 in 14 von 15 festen Wolken (drei Wolkenarten), 0,59 in einer Normalwolke (Seed 100001). Das Zertifikat überschätzt den Fehler also etwa um den Faktor 2. Beobachtung, kein Satz |
-| Schritte bis zur relativen Lücke ε | **etwa 0,5 bis 0,9 mal 1/ε**, unabhängig von Punktzahl und Dimension (n·d von 100 bis 20 000): bei ε = 10⁻³ zwischen 682 und 866 Schritte; zehnmal mehr Genauigkeit kostet zehnmal mehr Schritte (Verhältnis 8 bis 13) |
+| Schritte bis zur relativen Lücke ε | **etwa 0,5 bis 0,9 mal 1/ε**, unabhängig von Punktzahl und Dimension (n·d von 100 bis 20 000; Median über 5 Normalwolken, ε ≥ 10⁻³; in einzelnen Wolken und bei feineren ε bis rund 1,0): bei ε = 10⁻³ zwischen 682 und 866 Schritte; zehnmal mehr Genauigkeit kostet etwa zehnmal mehr Schritte (Verhältnis 9 bis 12 von ε = 0,01 auf 0,001, 7 bis 11 von 0,1 auf 0,01) |
 | Konvexe lokale Suche (Mittelpunkt-Verfahren, 2000 Schritte) | Von allen 100 Zufallsstarts in jeder der 15 Wolken endet der Radius höchstens 0,1 % über dem wahren (schlechtester gemessen 0,05 %) |
-| Getrimmte Kugel, Wechselverfahren, 100 Starts, n = 20, 4 aussortiert | Trefferquote des globalen Optimums im Median **10 % (Normalwolke), 29 % (Haufen + Ausreißer), 25 % (zwei Haufen)**, in einzelnen Wolken 0 bis 40 %; schlechtester Start im Median 35 % / 248 % / 10 % über dem Optimum, im Extremfall 277 %; 6 bis 9 verschiedene Endwerte im Median je Wolkenart. Die Zahlen gehören zu **diesem** Wechselverfahren und dieser Startverteilung |
+| Getrimmte Kugel, Wechselverfahren, 100 Starts, n = 20, 4 aussortiert | Trefferquote des globalen Optimums im Median **10 % (Normalwolke), 29 % (Haufen + Ausreißer), 25 % (zwei Haufen)**, in einzelnen Wolken 0 bis 40 % (Median aus nur 5 Wolken je Art; der Abstand zwischen 29 und 25 % ist nicht belastbar); schlechtester Start im Median 35 % / 248 % / 10 % über dem Optimum, im Extremfall 277 %; 6 bis 9 verschiedene Endwerte im Median je Wolkenart. Die Zahlen gehören zu **diesem** Wechselverfahren und dieser Startverteilung |
 | Aufwand des Beweises | Teilmengen, die der Beweis durch Aufzählen prüft: C(20, 4) = 4845, C(40, 6) = 3 838 380. Über Stützpunkte (Kugeln durch höchstens d + 1 Punkte): in der Ebene n = 20: 1330, n = 40: 10 660; in 10 Dimensionen bei n = 20: 784 605, bei n = 40 über 2 Milliarden |
 
 ## Befunde und Korrekturen gegenüber dem Plan
@@ -47,7 +47,7 @@ Alle Zahlen stehen in `tests/test_claims.py`; Experimente laufen über die fünf
 ## Ehrliche Grenzen
 
 - Es ist **nur die euklidische Kugel in der Ebene** (für die Experimente zur Rate auch in höheren Dimensionen). Andere Formen sind andere Kegelprogramme (Stück 2).
-- Die **Rate 0,5 bis 0,9 /ε** ist gemessen bis ε = 10⁻³. Für 10⁻⁶ wären es hochgerechnet rund 750 000 Schritte; das ist nicht gemessen. Sie passt zur bekannten Größenordnung O(1/ε) für Kernmengen der kleinsten Kugel (Bădoiu und Clarkson), ist aber hier nicht daraus abgeleitet.
+- Die **Rate 0,5 bis 0,9 /ε** ist für Normalwolken gemessen bis ε = 10⁻³. Für 10⁻⁶ ergab eine einmalige Nachmessung (Ebene mit n = 50 und 200 Punkte in 10 Dimensionen, je 2 Wolken) 0,6 bis 1,0 Millionen Schritte, also 0,6 bis 1,0 /ε; sie ist nicht Teil der Tests. Die Rate passt zur bekannten Größenordnung O(1/ε) für die Größe von Kernmengen der kleinsten Kugel (Bădoiu und Clarkson), ist aber hier nicht daraus abgeleitet; die Schrittzahl des hier benutzten Verfahrens ist daraus nicht übernommen.
 - Das **Wechselverfahren** ist eine von vielen lokalen Suchen. Bessere Heuristiken (viele Starts, Verbesserungsschritte) treffen öfter, beweisen aber nichts.
 - Die Laufzeit je Teilmenge im Experiment 4 ist auf dem jeweiligen Server gemessen und deshalb nicht reproduzierbar; nur die Zahlen der Teilmengen und Stützpunkt-Kugeln sind getestet.
 - Die Hilfeaussage, dass die Slater-Bedingung hier erfüllt ist, ist eine Rechnung von Hand (Beweis im Expander), nicht Teil der Tests.
@@ -58,10 +58,11 @@ Alle Zahlen stehen in `tests/test_claims.py`; Experimente laufen über die fünf
 - **Orakel:** `tests/test_oracle_konvexitaet_zertifikat.py`: Welzl gegen die Kreise durch zwei und drei Punkte (40 Wolken), gegen scipy-SLSQP (24 Wolken, 2D und 3D) und gegen Stützpunkt-Aufzählung in 3D; das Dual gegen scipy auf dem Simplex; Aufzählen gegen Stützpunkte für die getrimmte Kugel (30 Wolken in 2D, 6 in 3D).
 - **Eigenschaften:** Skalierung, Verschiebung und Reihenfolge ändern nichts Wesentliches; schwache Dualität auf Zufallspaaren; beide Schranken umklammern den wahren Radius in jedem Schritt; die untere Schranke sinkt nie; die lokale Suche ist nie besser als das Optimum und nie schlechter als ihr Start.
 - **Randfälle:** ein Punkt, genau zwei Punkte, identische Punkte, kollineare Punkte, null Schritte, ungültige Eingaben mit Meldung, inklusive Grenzen von m und r.
+- **Text:** kein Steuerzeichen in README und Quelltext (`tests/test_text_clean.py`; ein verirrtes `\v` hatte in der Literaturangabe das LaTeX-Zeichen für ε zerstört).
 - **Verdikte:** reine Funktionen; Schwellen (1 % und 10 % Lücke, 50 % Trefferquote) und jede Zahl im Text in `tests/test_verdicts.py`.
 - **Claims:** jede Zahl dieser README in `tests/test_claims.py`.
 - **Presets, Oberfläche, Layout:** Presets vollständig und innerhalb der Grenzen, Permalink verwirft ungültige Werte, AppTest-Rauchtest (jeder Button, jeder Regler an Minimum und Maximum), Schnellstart und fester Kopf, Footer, Laufzeit-Importe.
-- **Umfang:** 100 Tests, rund 3,3 Minuten (2026-11-01, Windows; eine Hälfte davon sind AppTests und der Claims-Lauf über 15 feste Wolken).
+- **Umfang:** 111 Tests, rund 2,5 Minuten (gemessen 2026-11-03, Windows; eine Hälfte davon sind AppTests und der Claims-Lauf über 15 feste Wolken).
 - **Nicht gelaufen:** kein Mutationstest (seit 2026-10-28 nicht mehr Teil des Ablaufs); geprüft ist gegen Orakel, Eigenschaften und Claims.
 
 ## Dateistruktur

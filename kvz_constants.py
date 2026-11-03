@@ -32,8 +32,8 @@ PRESETS = {
 }
 PRESET_HELP = {
     "Standardfall: Normalwolke": "20 Punkte aus einer Normalverteilung, 200 Schritte des Dualverfahrens, vier Punkte werden für die getrimmte Kugel aussortiert.",
-    "Ein Haufen, vier Ausreißer": "16 Punkte im Haufen und vier weit rechts: die Kugel um alle Punkte wird riesig, die getrimmte klein, und das lokale Verfahren verläuft sich oft.",
+    "Ein Haufen, vier Ausreißer": "16 Punkte im Haufen und vier verstreut rechts davon: die Kugel um alle Punkte wird riesig, die getrimmte klein, und das lokale Verfahren verläuft sich oft.",
     "Zwei Haufen": "Zwei gleich große Haufen: zwei Teillösungen konkurrieren, wenn Punkte aussortiert werden dürfen.",
     "Wenige Schritte (5)": "Nur fünf Schritte: die Lücke ist noch groß, aber der Beweis gilt trotzdem.",
-    "Beweis wird unbezahlbar": "40 Punkte, 6 aussortieren: knapp 3,8 Millionen Teilmengen, zu viele für die Aufzählung in der App.",
+    "Beweis wird unbezahlbar": "40 Punkte, 6 aussortieren: gut 3,8 Millionen Teilmengen, zu viele für die Aufzählung in der App.",
 }

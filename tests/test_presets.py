@@ -44,7 +44,7 @@ def test_each_preset_answers_the_question_in_its_help():
     assert C.PRESETS["Zwei Haufen"]["cloud"] == "Zwei Haufen"
     big = C.PRESETS["Beweis wird unbezahlbar"]
     import kvz_algorithm as A
-    assert A.count_removals(big["n"], big["r"]) == 3_838_380 > C.BRUTE_FORCE_LIMIT        # „knapp 3,8 Millionen Teilmengen“
+    assert A.count_removals(big["n"], big["r"]) == 3_838_380 > C.BRUTE_FORCE_LIMIT        # „gut 3,8 Millionen Teilmengen“
 
 
 def test_permalink_takes_valid_values_and_drops_invalid_ones():

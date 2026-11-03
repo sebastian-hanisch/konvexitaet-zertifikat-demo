@@ -113,7 +113,7 @@ with st.sidebar:
     cloud = st.selectbox("Art der Wolke", C.CLOUDS, key="cloud_select", help="Normalverteilt, ein Haufen mit Ausreißern oder zwei Haufen.")
     n = st.slider("Punkte n", *bounds("n_slider"), key="n_slider", help="Wie viele Punkte die Wolke hat.")
     r = st.slider("Auszusortierende Punkte r", *bounds("r_slider"), key="r_slider",
-                  help="Die getrimmte Kugel muss nur n − r Punkte enthalten. Bei „Haufen + Ausreißer“ liegen so viele Punkte weit rechts vom Haufen.")
+                  help="Die getrimmte Kugel muss nur n − r Punkte enthalten. Bei „Haufen + Ausreißer“ liegen so viele Punkte verstreut rechts vom Haufen.")
     st.markdown("**Dualverfahren**")
     steps = st.slider("Schritte", *bounds("steps_slider"), key="steps_slider", help="Wie viele Schritte das Verfahren macht, bevor die Schranken gelesen werden.")
     seed = st.number_input("Zufalls-Seed der Wolke", *bounds("seed_input"), key="seed_input", step=1)
@@ -123,7 +123,7 @@ sync_query_params({"cloud_select": cloud, "n_slider": int(n), "r_slider": int(r)
 
 settings = Settings(cloud, int(n), int(r), int(steps), int(seed))
 a = _analysis(settings)
-if a.problems:   # unabhängiger Prüfer, nicht nur im Test: lieber eine Fehlermeldung als eine stille falsche Zahl
+if a.problems:   # Prüfer (rechnet die Schranken neu), nicht nur im Test: lieber eine Fehlermeldung als eine stille falsche Zahl
     st.error("Das Zertifikat besteht den Prüfer nicht: " + "; ".join(a.problems))
 
 # --- Ergebnis ------------------------------------------------------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ st.markdown("## 🎯 Ergebnis")
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Obere Schranke", de(a.upper, 3), help="Radius der Kugel um den Mittelpunkt c: sie enthält alle Punkte.")
 m2.metric("Untere Schranke (dual)", de(a.lower, 3), help="Der duale Wert der aktuellen Gewichte: kleiner kann der kleinste Radius nicht sein.")
-m3.metric("Bewiesene Lücke", pct(a.gap_rel), help="Obere minus untere Schranke, in Anteilen der oberen. Mehr kann die obere Schranke nicht danebenliegen.")
+m3.metric("Bewiesene Lücke", pct(a.gap_rel), help="Obere minus untere Schranke, in Anteilen der oberen. Absolut liegt die obere Schranke höchstens so weit daneben.")
 m4.metric("Wahrer Radius (exakt)", de(a.exact_r, 3), help="Zum Vergleich exakt berechnet (Welzl). Das Zertifikat braucht diese Zahl nicht.")
 st.plotly_chart(
     build_cloud(a.inst.points, a.run.centre, a.upper, a.run.lam, a.exact_centre, a.exact_r),
@@ -237,7 +237,7 @@ st.markdown(
 |---|---|---|
 | **Nur die euklidische Kugel** | Andere Formen (Würfel, Ellipsoid) sind andere Kegelprogramme; die Demo rechnet nur die Kugel. | Stück 2 der Reihe: Kegelform |
 | **Die Dualität hat keine Lücke** | Bei der Kugel gilt starke Dualität (es gibt einen Punkt im Inneren). Bei anderen konvexen Problemen kann die Lücke trotz Konvexität bleiben. | Stück 4: Kegel-Dualität |
-| **Genauigkeit kostet Schritte** | Das Verfahren braucht etwa 0,75/ε Schritte für die relative Lücke ε (gemessen bis ε = 10⁻³); für 10⁻⁶ wären es hochgerechnet rund 750 000. Schnellere Verfahren folgen. | Stück 5 und 6: Innere Punkte |
+| **Genauigkeit kostet Schritte** | Das Verfahren braucht bei Normalwolken etwa 0,5 bis 0,9/ε Schritte für die relative Lücke ε (gemessen bis ε = 10⁻³); für 10⁻⁶ ergab eine Nachmessung 0,6 bis 1,0 Millionen Schritte, in der App nicht gerechnet. Schnellere Verfahren folgen. | Stück 5 und 6: Innere Punkte |
 | **Die getrimmte Kugel ist nur ein nichtkonvexes Beispiel** | Das Wechselverfahren ist eine von vielen lokalen Suchen; bessere Heuristiken treffen öfter, beweisen aber nichts. In der Ebene gibt es einen exakten Weg über Stützpunkte, in hoher Dimension nicht billig. | – |
 """
 )
@@ -261,11 +261,11 @@ $R^{*2} \ge \sum_i \lambda_i \lVert x_i - c^* \rVert^2 \ge \sum_i \lambda_i \lVe
 **Verfahren (Frank-Wolfe auf dem Dual).** Start $\lambda = e_1$. Im Schritt sei $c = \sum_i \lambda_i x_i$ und $i^*$ der fernste Punkt; setze $\lambda \leftarrow (1-\gamma)\lambda + \gamma e_{i^*}$ mit
 exakter Linienminimierung für $\gamma \in [0,1]$. Dann ist die obere Schranke $U(c)$ und die untere $\sqrt{D(\lambda)}$.
 
-**Getrimmte Kugel.** Kleinste Kugel, die mindestens $m$ der $n$ Punkte enthält: $\min_{S,\, |S| = m} R^*(S)$. Die Zielfunktion ist nicht konvex in den Auswahlvariablen; es gibt keine duale Schranke, die man billig bekommt.
+**Getrimmte Kugel.** Kleinste Kugel, die mindestens $m$ der $n$ Punkte enthält: $\min_{S,\, |S| = m} R^*(S)$. Die Zielfunktion ist nicht konvex in den Auswahlvariablen; es gibt keine billige duale Schranke, die im Allgemeinen scharf ist.
 Exakt: für jede Wahl von $r = n - m$ entfernten Punkten die kleinste Kugel der übrigen ($\binom{n}{r}$ Kugeln), oder alle Kugeln durch höchstens $d + 1$ Punkte ($\sum_{k=2}^{d+1} \binom{n}{k}$ Kugeln).
 
-**Literatur.** E. Welzl: *Smallest enclosing disks (balls and ellipsoids)*, in: H. Maurer (Hrsg.), New Results and New Trends in Computer Science, Lecture Notes in Computer Science 555, Springer 1991, S. 359–370 (exakte kleinste Kugel in erwarteter Linearzeit).
-M. Bădoiu und K. L. Clarkson: *Smaller core-sets for balls*, Proceedings of the 14th ACM-SIAM Symposium on Discrete Algorithms (SODA) 2003, S. 801–802 (Kernmengen der Größe $O(1/arepsilon)$, unabhängig von der Dimension; das Mittelpunkt-Verfahren der Demo geht auf diese Art von Schritten zurück).
+**Literatur.** E. Welzl: *Smallest enclosing disks (balls and ellipsoids)*, in: H. Maurer (Hrsg.), New Results and New Trends in Computer Science, Lecture Notes in Computer Science 555, Springer 1991, S. 359–370 (exakte kleinste Kugel in erwarteter Linearzeit bei zufälliger Reihenfolge der Punkte).
+M. Bădoiu und K. L. Clarkson: *Smaller core-sets for balls*, Proceedings of the 14th ACM-SIAM Symposium on Discrete Algorithms (SODA) 2003, S. 801–802 (Kernmengen der Größe $O(1/\varepsilon)$, unabhängig von der Dimension; das Mittelpunkt-Verfahren der Demo geht auf diese Art von Schritten zurück; die Rate der Demo ist daraus nicht abgeleitet).
         """
     )
 

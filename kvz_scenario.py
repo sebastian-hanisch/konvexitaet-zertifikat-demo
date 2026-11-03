@@ -17,7 +17,7 @@ class Instance:
 
 
 def make_cloud(kind: str, n: int, r: int, seed: int) -> Instance:
-    """Deterministisch aus (kind, n, r, seed). `r` zählt nur bei „Haufen + Ausreißer“: so viele Punkte liegen weit rechts vom Haufen."""
+    """Deterministisch aus (kind, n, r, seed). `r` zählt nur bei „Haufen + Ausreißer“: so viele Punkte liegen verstreut rechts vom Haufen."""
     if kind not in C.CLOUDS:
         raise ValueError(f"unbekannte Wolke {kind!r}")
     rng = np.random.default_rng(seed)
