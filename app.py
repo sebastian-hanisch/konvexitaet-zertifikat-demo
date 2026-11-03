@@ -91,6 +91,19 @@ Weiter unten: **vier Experimente** (**🔬**), eine **🎲 Spielwiese**, **🚧 
 """
 )
 
+# erklaerseite:einfach:start (erzeugt von tools/set_demo_explainer.py (Website-Repo) aus tools/content/explainers/beweis-zum-mitnehmen-erklaert.json, nicht von Hand ändern)
+with st.expander("💬 In einfachen Worten"):
+    st.markdown(
+        """
+Die Demo sucht den **kleinsten Kreis** (in mehr Dimensionen: die kleinste Kugel), der alle Punkte einer Wolke umschließt, etwa als Standort mit kürzestem Weg zum fernsten Kunden. Zu jedem Zwischenergebnis rechnet sie zwei Zahlen aus: eine **obere Schranke** (der Kreis, den man gerade hat) und eine **untere Schranke** (eine Länge, die der beste Kreis nicht unterschreiten kann, welche Gewichte man auch auf die Punkte verteilt). Die **Lücke** zwischen beiden begrenzt den Fehler, ohne dass man die beste Lösung kennt: der **Beweis zum Mitnehmen**.
+
+Beim Gegenstück, der **getrimmten Kugel**, die nur die meisten Punkte umschließen muss, fehlt die Konvexität und mit ihr dieser Beweis; das Wechselverfahren trifft das Optimum nur in einem Teil der Läufe. Der Haken: Das Zertifikat überschätzt den wahren Fehler in den Messungen etwa um das Doppelte.
+
+[Ausführlich und verständlich erklärt, mit Fachteil](https://sebastianhanisch.net/beweis-zum-mitnehmen-erklaert.html)
+        """
+    )
+# erklaerseite:einfach:end
+
 with st.expander("So funktioniert das Zertifikat", expanded=True):
     st.markdown(
         """
@@ -245,6 +258,27 @@ st.markdown(
 st.markdown("---")
 
 with st.expander("📐 Mathematische Formulierung"):
+    # erklaerseite:lesehilfe:start (erzeugt von tools/set_demo_explainer.py (Website-Repo) aus tools/content/explainers/beweis-zum-mitnehmen-erklaert.json, nicht von Hand ändern)
+    st.markdown(
+        r"""
+**Lesehilfe.** Gegeben sind Punkte $x_1, \dots, x_n$ im $\mathbb{R}^d$. Gesucht ist die kleinste Kugel, die alle enthält. Eine obere Schranke liefert jeder Mittelpunkt $c$, eine untere jede Verteilung von Gewichten $\lambda$ auf die Punkte.
+
+| Symbol | Bedeutung |
+|---|---|
+| $x_i,\ n,\ d$ | Punkt $i$, Zahl der Punkte und Dimension (in der Ebene $d = 2$) |
+| $c,\ R$ | Mittelpunkt und Radius einer Kugel; $R^*$ ist der kleinste mögliche Radius |
+| $\lVert \cdot \rVert$ | euklidischer Abstand (Norm) |
+| $U(c)$ | obere Schranke: Abstand von $c$ zum fernsten Punkt |
+| $\lambda,\ \lambda_i$ | Gewichte auf den Punkten (nicht negativ, Summe 1) |
+| $\bar x$ | Gewichtsschwerpunkt $\sum_i \lambda_i x_i$ |
+| $D(\lambda),\ \sqrt{D(\lambda)}$ | gewichtete Streuung der Punkte um $\bar x$ und daraus die untere Schranke |
+| $\gamma,\ e_i$ | Schrittweite und Einheitsvektor (das ganze Gewicht auf Punkt $i$) |
+| $m,\ r,\ S$ | mindestens zu umschließende Punktzahl, $r = n - m$ auszusortierende Punkte und die gewählte Auswahl von $m$ Punkten |
+
+[Schritt für Schritt erklärt, mit Herleitung und Literatur](https://sebastianhanisch.net/beweis-zum-mitnehmen-erklaert.html#fachleute)
+        """
+    )
+    # erklaerseite:lesehilfe:end
     st.markdown(
         r"""
 **Problem.** Gegeben Punkte $x_1, \dots, x_n \in \mathbb{R}^d$. Gesucht ist die kleinste Kugel, die alle enthält:
@@ -273,5 +307,5 @@ st.markdown("---")
 st.caption(
     "Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – "
     "Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). "
-    "Mehr zu den Demos: [Interaktive Demos](https://sebastianhanisch.net/demos.html)."
+    "Mehr zur Reihe: [Konvexe Optimierung: vom Beweis zur Verfahrenswahl](https://sebastianhanisch.net/konzepte-konvexe-optimierung.html)."
 )
